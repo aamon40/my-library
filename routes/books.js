@@ -53,6 +53,15 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id).populate("author").exec();
+    res.render("books/show", { book: book });
+  } catch {
+    res.redirect("/");
+  }
+});
+
 async function renderNewPage(res, book, hasError = false) {
   try {
     const authors = await Author.find({});
@@ -69,7 +78,7 @@ async function renderNewPage(res, book, hasError = false) {
 
 function saveCover(book, coverEncoded) {
   if (coverEncoded == null) return;
-  const cover = JSON.parse(coverEncoded)
+  const cover = JSON.parse(coverEncoded);
   if (cover != null && imageMimeTypes.includes(cover.type)) {
     book.coverImage = new Buffer.from(cover.data, "base64");
     book.coverImageType = cover.type;
